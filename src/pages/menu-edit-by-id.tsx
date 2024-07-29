@@ -1,8 +1,8 @@
 import useSWR from "swr";
-import { Book } from "../lib/models";
+import { Menu } from "../lib/models";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/layout";
-import { Alert, Button, Checkbox, Container, Divider, NumberInput, TextInput } from "@mantine/core";
+import { Alert, Button, Container, Divider, NumberInput, TextInput } from "@mantine/core";
 import Loading from "../components/loading";
 import { IconAlertTriangleFilled, IconTrash } from "@tabler/icons-react";
 import { isNotEmpty, useForm } from "@mantine/form";
@@ -11,53 +11,45 @@ import axios, { AxiosError } from "axios";
 import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
 
-export default function BookEditById() {
-  const { bookId } = useParams();
+export default function MenuEditById() {
+  const { menuId } = useParams();
   const navigate = useNavigate();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { data: book, isLoading, error } = useSWR<Book>(`/books/${bookId}`);
+  const { data: menu, isLoading, error } = useSWR<Menu>(`/menu/${menuId}`);
   const [isSetInitialValues, setIsSetInitialValues] = useState(false);
 
-  const bookEditForm = useForm({
+  const menuEditForm = useForm({
     initialValues: {
-      title: "",
-      author: "",
-      year: 2024,
-      is_published: false,
-      preview: "",
+      name: "",
       des: "",
-      genre: "",
-
+      price: 50,
     },
 
     validate: {
-      title: isNotEmpty("กรุณาระบุชื่อหนังสือ"),
-      author: isNotEmpty("กรุณาระบุชื่อผู้แต่ง"),
-      year: isNotEmpty("กรุณาระบุปีที่พิมพ์หนังสือ"),
-      preview: isNotEmpty("กรุณาระบุเรื่องย่อ"),
-      des: isNotEmpty("กรุณาระบุรายละเอียด"),
-      genre: isNotEmpty("กรุณาระบุหมวดหมู่"),
+      name: isNotEmpty("กรุณาระบุชื่อเมนู"),
+      des: isNotEmpty("กรุณาระบุรายละเอียดเมนู"),
+      price: isNotEmpty("กรุณาระบุราคาเมนู"),
     },
   });
 
-  const handleSubmit = async (values: typeof bookEditForm.values) => {
+  const handleSubmit = async (values: typeof menuEditForm.values) => {
     try {
       setIsProcessing(true);
-      await axios.patch(`/books/${bookId}`, values);
+      await axios.patch(`/menu/${menuId}`, values);
       notifications.show({
-        title: "แก้ไขข้อมูลหนังสือสำเร็จ",
-        message: "ข้อมูลหนังสือได้รับการแก้ไขเรียบร้อยแล้ว",
+        title: "แก้ไขข้อมูลเมนูสำเร็จ",
+        message: "ข้อมูลเมนูได้รับการแก้ไขเรียบร้อยแล้ว",
         color: "teal",
       });
-      navigate(`/books/${bookId}`);
+      navigate(`/menu/${menuId}`);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
           notifications.show({
-            title: "ไม่พบข้อมูลหนังสือ",
-            message: "ไม่พบข้อมูลหนังสือที่ต้องการแก้ไข",
+            title: "ไม่พบข้อมูลเมนู",
+            message: "ไม่พบข้อมูลเมนูที่ต้องการแก้ไข",
             color: "red",
           });
         } else if (error.response?.status === 422) {
@@ -88,19 +80,19 @@ export default function BookEditById() {
   const handleDelete = async () => {
     try {
       setIsProcessing(true);
-      await axios.delete(`/books/${bookId}`);
+      await axios.delete(`/menu/${menuId}`);
       notifications.show({
-        title: "ลบหนังสือสำเร็จ",
-        message: "ลบหนังสือเล่มนี้ออกจากระบบเรียบร้อยแล้ว",
+        title: "ลบเมนูสำเร็จ",
+        message: "ลบเมนูนี้ออกจากระบบเรียบร้อยแล้ว",
         color: "red",
       });
-      navigate("/books");
+      navigate("/menu");
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
           notifications.show({
-            title: "ไม่พบข้อมูลหนังสือ",
-            message: "ไม่พบข้อมูลหนังสือที่ต้องการลบ",
+            title: "ไม่พบข้อมูลเมนู",
+            message: "ไม่พบข้อมูลเมนูที่ต้องการลบ",
             color: "red",
           });
         } else if (error.response?.status || 500 >= 500) {
@@ -123,18 +115,18 @@ export default function BookEditById() {
   };
 
   useEffect(() => {
-    if (!isSetInitialValues && book) {
-      bookEditForm.setInitialValues(book);
-      bookEditForm.setValues(book);
+    if (!isSetInitialValues && menu) {
+      menuEditForm.setInitialValues(menu);
+      menuEditForm.setValues(menu);
       setIsSetInitialValues(true);
     }
-  }, [book, bookEditForm, isSetInitialValues]);
+  }, [menu, menuEditForm, isSetInitialValues]);
 
   return (
     <>
       <Layout>
         <Container className="mt-8">
-          <h1 className="text-xl">แก้ไขข้อมูลหนังสือ</h1>
+          <h1 className="text-xl">แก้ไขข้อมูลเมนู</h1>
 
           {isLoading && !error && <Loading />}
           {error && (
@@ -147,54 +139,30 @@ export default function BookEditById() {
             </Alert>
           )}
 
-          {!!book && (
+          {!!menu && (
             <>
-              <form onSubmit={bookEditForm.onSubmit(handleSubmit)} className="space-y-8">
+              <form onSubmit={menuEditForm.onSubmit(handleSubmit)} className="space-y-8">
                 <TextInput
-                  label="ชื่อหนังสือ"
-                  placeholder="ชื่อหนังสือ"
-                  {...bookEditForm.getInputProps("title")}
+                  label="ชื่อเมนู"
+                  placeholder="ชื่อเมนู"
+                  {...menuEditForm.getInputProps("name")}
                 />
 
                 <TextInput
-                  label="ชื่อผู้แต่ง"
-                  placeholder="ชื่อผู้แต่ง"
-                  {...bookEditForm.getInputProps("author")}
+                  label="รายละเอียดเมนู"
+                  placeholder="รายละเอียดเมนู"
+                  {...menuEditForm.getInputProps("des")}
                 />
 
                 <NumberInput
-                  label="ปีที่พิมพ์"
-                  placeholder="ปีที่พิมพ์"
-                  min={1900}
-                  max={new Date().getFullYear() + 1}
-                  {...bookEditForm.getInputProps("year")}
+                  label="ราคา"
+                  placeholder="ราคา"
+                  min={0}
+                
+                  {...menuEditForm.getInputProps("price")}
                 />
 
-                {/* TODO: เพิ่มรายละเอียดหนังสือ */}
-                <TextInput
-                  label="รายละเอียดหนังสือ"
-                  placeholder="รายละเอียดหนังสือ"
-                  {...bookEditForm.getInputProps("des")}
-                />
-                {/* TODO: เพิ่มเรื่องย่อ */}
-                <TextInput
-                  label="เรื่องย่อ"
-                  placeholder="เรื่องย่อ"
-                  {...bookEditForm.getInputProps("preview")}
-                />
-                {/* TODO: เพิ่มหมวดหมู่(s) */}
-                <TextInput
-                  label="หมวดหมู่"
-                  placeholder="หมวดหมู่"
-                  {...bookEditForm.getInputProps("genre")}
-                />
-
-                <Checkbox
-                  label="เผยแพร่"
-                  {...bookEditForm.getInputProps("is_published", {
-                    type: "checkbox",
-                  })}
-                />
+       
 
                 <Divider />
 
@@ -205,10 +173,10 @@ export default function BookEditById() {
                     size="xs"
                     onClick={() => {
                       modals.openConfirmModal({
-                        title: "คุณต้องการลบหนังสือเล่มนี้ใช่หรือไม่",
+                        title: "คุณต้องการลบเมนูนี้ใช่หรือไม่",
                         children: (
                           <span className="text-xs">
-                            เมื่อคุณดำนเนินการลบหนังสือเล่มนี้แล้ว จะไม่สามารถย้อนกลับได้
+                            เมื่อคุณดำนเนินการลบเมนูนี้แล้ว จะไม่สามารถย้อนกลับได้
                           </span>
                         ),
                         labels: { confirm: "ลบ", cancel: "ยกเลิก" },
@@ -221,7 +189,7 @@ export default function BookEditById() {
                       });
                     }}
                   >
-                    ลบหนังสือนี้
+                    ลบเมนูนี้
                   </Button>
 
                   <Button type="submit" loading={isLoading || isProcessing}>

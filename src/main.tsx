@@ -15,6 +15,16 @@ import BookEditById from "./pages/book-edit-by-id";
 import { ModalsProvider } from "@mantine/modals";
 import BookCreatePage from "./pages/book-create";
 
+import MenuPage from "./pages/menu";
+import MenuByIdPage from "./pages/menu-by-id";
+import MenuEditById from "./pages/menu-edit-by-id";
+import MenuCreatePage from "./pages/menu-create";
+
+import OrderPage from "./pages/order";
+import OrderCreatePage from "./pages/order-create";
+import OrderByIdPage from "./pages/order-by-id";
+import OrderEditById from "./pages/order-edit-by-id";
+
 const theme = createTheme({
   primaryColor: "orange",
   fontFamily: '"Noto Sans Thai Looped", sans-serif',
@@ -41,6 +51,38 @@ const router = createBrowserRouter([
     path: "/books/:bookId/edit",
     element: <BookEditById />,
   },
+  {
+    path: "/menu",
+    element: <MenuPage/>,
+  },
+  {
+    path: "/menu/:menuId",
+    element: <MenuByIdPage/>,
+  },
+  {
+    path: "/menu/:menuId/edit",
+    element: <MenuEditById/>,
+  },
+  {
+    path: "/menu/create",
+    element: <MenuCreatePage/>,
+  },
+  {
+    path: "/order",
+    element: <OrderPage/>,
+  },
+  {
+    path: "/order/create",
+    element: <OrderCreatePage/>
+  },
+  {
+    path: "/order/:orderId",
+    element: <OrderByIdPage/>
+  },
+  {
+    path: "/order/:orderId/edit",
+    element: <OrderEditById/>
+  }
 ]);
 
 if (import.meta.env.VITE_API_URL) {
